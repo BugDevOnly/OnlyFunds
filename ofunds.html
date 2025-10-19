@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мой Аналитический Портал</title>
+    <title>OnlyFunds</title>
     <style>
         * {
             margin: 0;
@@ -13,53 +13,397 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #0d1117;
-            color: #c9d1d9;
+            color: #333;
             line-height: 1.6;
+            min-width: 100%;
+            min-height: 100vh;
+            background-image: url('images/silver-gray-pattern-background.jpg');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            position: relative;
         }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body > * {
+            position: relative;
+            z-index: 1;
+        }
+
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 0;
+            position: relative;
+            z-index: 1; /* ensure content is above the dark overlay */
+        }
+
+        .chart-section {
+            background-size: cover;
+            background-position: center;
+            padding: 40px 0 60px 0;
+            margin: 0;
+        }
+
+        .main-content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin: 20px 40px 40px 40px;
+            align-items: start;
+        }
+
+        .analytics-block {
+            background: transparent; /* no white frame */
+            border-radius: 0;
+            box-shadow: none;
+            padding: 20px 0 32px 0;
+            max-width: 100%;
+            font-size: 1.06rem;
+            color: #ffffff; /* strict white text */
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif; /* strict sans */
+            font-weight: 400;
+            line-height: 1.5;
+            text-align: left; /* left-align text */
+        }
+
+        .news-sidebar {
+            background: rgba(22, 27, 34, 0.9);
+            border-radius: 12px;
             padding: 20px;
+            border: 1px solid #30363d;
+            backdrop-filter: blur(10px);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .news-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .news-header h3 {
+            color: #58a6ff;
+            font-size: 1.3rem;
+            margin: 0;
+        }
+
+        .news-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .news-filter {
+            background: #1f6feb;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .news-filter.active {
+            background: #f78166;
+        }
+
+        .news-filter:hover {
+            transform: translateY(-1px);
+        }
+
+        .news-item {
+            background: rgba(13, 17, 23, 0.7);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .news-item:hover {
+            border-color: #58a6ff;
+            transform: translateX(5px);
+        }
+
+        .news-item.high {
+            border-left: 4px solid #da3633;
+        }
+
+        .news-item.medium {
+            border-left: 4px solid #d29922;
+        }
+
+        .news-item.low {
+            border-left: 4px solid #3fb950;
+        }
+
+        .news-time {
+            color: #8b949e;
+            font-size: 11px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .news-title {
+            color: #c9d1d9;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .news-currency {
+            color: #58a6ff;
+            font-size: 11px;
+            background: rgba(88, 166, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .news-impact {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .impact-high { background: rgba(218, 54, 51, 0.2); color: #da3633; }
+        .impact-medium { background: rgba(210, 153, 34, 0.2); color: #d29922; }
+        .impact-low { background: rgba(63, 185, 80, 0.2); color: #3fb950; }
+
+        .news-count {
+            color: #8b949e;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .refresh-btn {
+            background: transparent;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            border-color: #58a6ff;
+            color: #58a6ff;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content-wrapper {
+                grid-template-columns: 1fr;
+                margin: 20px;
+            }
+            
+            .news-sidebar {
+                position: relative;
+                top: 0;
+                max-width: 600px;
+            }
+        }
+
+        /* enforce strict white text and control emphasis; headings forced bold */
+        .analytics-block * {
+            color: #ffffff !important;
+            font-style: normal !important;
+        }
+        .analytics-block h1,
+        .analytics-block h2,
+        .analytics-block h3,
+        .analytics-block h4,
+        .analytics-block h5,
+        .analytics-block h6 {
+            font-weight: 700 !important;
+        }
+        .analytics-block strong,
+        .analytics-block b { font-weight: 700 !important; }
+        .analytics-block em, .analytics-block i { font-style: italic !important; }
+        .analytics-block a { color: #ffffff !important; text-decoration: none; }
+        .analytics-block h2 {
+            color: #ffffff;
+            font-size: 1.6rem;
+            margin-bottom: 12px;
+            font-weight: 700; /* bold for headings */
+        }
+        .analytics-block h3 {
+            color: #ffffff;
+            font-size: 1.1rem;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .analytics-block h4 {
+            color: #ffffff;
+            font-size: 1rem;
+            margin-top: 14px;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+        .analytics-block ul {
+            margin: 0 0 14px 20px;
+            padding-left: 18px;
+            color: #ffffff;
+        }
+        .analytics-block li {
+            margin-bottom: 8px;
+        }
+        .analytics-block blockquote {
+            background: transparent;
+            border-left: 3px solid rgba(255,255,255,0.15);
+            margin: 14px 0;
+            padding: 8px 12px;
+            color: #ffffff;
+            font-style: italic; /* italic where needed */
+        }
+        .analytics-block .blue {
+            color: #ffffff;
+            font-weight: 700;
+        }
+        .analytics-block .formula {
+            background: transparent;
+            border-radius: 0;
+            padding: 8px 12px;
+            font-family: 'Consolas', 'Menlo', 'Monaco', monospace;
+            font-size: 1rem;
+            margin: 12px 0 12px 0;
+            color: #ffffff;
+            font-weight: 700;
+        }
+        .analytics-block .final-phrase {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-top: 18px;
+            color: #ffffff;
+        }
+        .analytics-block .chart-emoji {
+            font-size: 1.2em;
         }
 
         header {
             text-align: center;
             margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #30363d;
+            padding: 20px 0;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+        }
+
+        /* calendar button in header */
+        .header-actions {
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .calendar-btn {
+            background: #1f6feb;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
         }
 
         h1 {
-            color: #58a6ff;
+            color: #1e90ff;
             font-size: 2.5rem;
         }
 
         .chart-container {
-            background: #161b22;
-            border-radius: 10px;
-            padding: 20px;
-            border: 1px solid #30363d;
             margin-bottom: 20px;
+            width: 100%;
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px 24px; 
+            background: transparent;
+            border-radius: 8px;
+            box-shadow: none;
+            border: none;
+            position: relative;
+            overflow: visible;
         }
 
         .chart-container h2 {
-            margin-bottom: 15px;
-            color: #58a6ff;
+            margin: 0 0 15px 0;
+            color: #333;
+            text-align: center;
+            font-size: 1.15rem;
+            font-weight: 600;
         }
 
         #tradingview_chart {
-            height: 600px;
+            height: 520px; 
             width: 100%;
-            border-radius: 5px;
+            max-width: 1050px;
+            margin: 0 auto;
+            border-radius: 6px;
+            display: block;
+        }
+
+        .chart-section {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .chart-container { max-width: 900px; }
+            #tradingview_chart { max-width: 860px; height: 480px; }
+        }
+
+        @media (max-width: 800px) {
+            .chart-container { max-width: 100%; padding-left: 12px; padding-right: 12px; }
+            #tradingview_chart { height: 420px; }
         }
 
         .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
         }
 
         .symbol-btn {
@@ -93,39 +437,241 @@
         .active {
             background: #f78166 !important;
         }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background-color: white;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            margin-top: 50px;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .contact-info a {
+            color: #1e90ff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .contact-info a:hover {
+            color: #1873cc;
+        }
     </style>
 </head>
 <body>
+    <div class="bg-wrapper" style="position:relative;">
+    
+    <header>
+        <h1>OnlyFunds</h1>
+        <div class="header-actions">
+            <a class="calendar-btn" href="calendar.html">CALENDAR</a>
+        </div>
+    </header>
     <div class="container">
-        <header>
-            <h1>Мой Аналитический Портал</h1>
-        </header>
-        
-        <div class="controls">
-            <button class="symbol-btn active" data-symbol="BINANCE:BTCUSDT">BTC/USDT</button>
-            <button class="symbol-btn" data-symbol="BINANCE:ETHUSDT">ETH/USDT</button>
-            <button class="symbol-btn" data-symbol="BINANCE:ADAUSDT">ADA/USDT</button>
-            <button class="symbol-btn" data-symbol="BINANCE:DOTUSDT">DOT/USDT</button>
+
+        <div class="main-content-wrapper">
+            <section class="analytics-block">
+                <h2>Многофакторная аналитическая модель: <span class="blue">Синтез паттернов, сентимента и фундаментальных данных</span></h2>
+                <h3>🧠 Философия интеллектуального анализа рынков</h3>
+                <p>Современный финансовый анализ — это не просто чтение графиков, а сложная экосистема взаимосвязанных факторов. Моя методология строится на трех фундаментальных столпах, образующих триангуляцию рыночной истины:</p>
+
+                <h4>📊 ТЕХНИЧЕСКИЙ АНАЛИЗ: <span class="blue">Язык ценовых паттернов</span></h4>
+                <ul>
+                    <li><b>Классические формации:</b> Голова-плечи, треугольники, флаги — проверенная временем классика</li>
+                    <li><b>Свечные комбинации:</b> Моментальные психологические снимки рыночных настроений</li>
+                    <li><b>Волновой анализ Эллиотта:</b> Цикличность как фундаментальный закон финансовых рынков</li>
+                    <li><b>Кластерный анализ:</b> Поиск зон концентрации ликвидности и значимых ценовых уровней</li>
+                </ul>
+
+                <blockquote>"Цена учитывает всё" — но важно понимать, ЧТО именно она учитывает в данный момент.</blockquote>
+
+                <h4>📰 ФУНДАМЕНТАЛЬНЫЙ АНАЛИЗ: <span class="blue">Контекст имеет значение</span></h4>
+                <ul>
+                    <li><b>Макроэкономические индикаторы:</b> Процентные ставки, инфляция, данные по занятости</li>
+                    <li><b>Событийный анализ:</b> Форкы, хардфорки, обновления протоколов в криптосекторе</li>
+                    <li><b>Корпоративные отчеты:</b> Для традиционных активов — квартальные отчеты компаний</li>
+                    <li><b>Регуляторные изменения:</b> Политические решения, меняющие правила игры</li>
+                </ul>
+                <blockquote>Паттерн без контекста — просто красивая картинка. Контекст без паттерна — слепая вера.</blockquote>
+
+                <h4>🎭 Анализ сентимента: <span class="blue">Измерение эмоций рынка</span></h4>
+                <ul>
+                    <li><b>Индикаторы страха/жадности:</b> Композитные показатели рыночных эмоций</li>
+                    <li><b>Социальные тренды:</b> Анализ дискурса в соцсетях, форумах, медиа</li>
+                    <li><b>Данные по позициям:</b> COT отчеты, открытый интерес, данные фьючерсов</li>
+                    <li><b>Веб-активность:</b> Поисковые запросы, активность в GitHub для криптопроектов</li>
+                </ul>
+                <blockquote>Когда толпа единодушна — рынок готов развернуться.</blockquote>
+
+                <h3>⚡ СИСТЕМА ПРИНЯТИЯ РЕШЕНИЙ: <span class="blue">Синтез многомерных данных</span></h3>
+                <p>Моя модель создает единую оценку вероятности путем взвешивания сигналов:</p>
+                <pre class="formula">ВЕРОЯТНОСТЬ УСПЕХА = 
+    (Технические сигналы × 0.4) + 
+    (Фундаментальные факторы × 0.3) + 
+    (Рыночный сентимент × 0.2) + 
+    (Управление рисками × 0.1)</pre>
+
+                <h3>🎯 КЛЮЧЕВЫЕ ПРИНЦИПЫ МОДЕЛИ</h3>
+                <ul>
+                    <li>Мультитаймфреймный анализ — от месячных графиков до минутных</li>
+                    <li>Кластерный анализ объемов — поиск истинных точек интереса</li>
+                    <li>Корреляционный анализ — взаимовлияние активов и секторов</li>
+                    <li>Сезонность и цикличность — распознавание повторяющихся паттернов</li>
+                    <li>Адаптивность — модель эволюционирует вместе с рынком</li>
+                </ul>
+
+                <h3>🔮 ПРЕДИКТИВНАЯ МОЩНОСТЬ: <span class="blue">От реактивного к проактивному анализу</span></h3>
+                <ul>
+                    <li>Распознавание зарождающихся трендов до их массового признания</li>
+                    <li>Выявление дивергенций между ценой и фундаментальными показателями</li>
+                    <li>Прогнозирование волатильности на основе событийного календаря</li>
+                    <li>Определение точек аккумуляции/дистрибуции крупных игроков</li>
+                </ul>
+                <blockquote>Настоящий аналитик не предсказывает будущее — он вычисляет наиболее вероятные сценарии развития.</blockquote>
+
+                <p>В результате создается не просто набор индикаторов, а целостная аналитическая экосистема, где каждый компонент усиливает другие, образуя мощный инструмент для принятия взвешенных решений в условиях неопределенности и высокой волатильности современных финансовых рынков.</p>
+                <p class="final-phrase">Анализ — это искусство находить порядок в хаосе и возможности в неопределенности. <span class="chart-emoji">📈✨</span></p>
+
+            </section>
+
+            <div class="news-sidebar">
+                <div class="news-header">
+                    <h3>📅 Экономические Новости</h3>
+                    <button class="refresh-btn" onclick="refreshNews()">🔄</button>
+                </div>
+                
+                <div class="news-controls">
+                    <button class="news-filter active" data-filter="all">Все</button>
+                    <button class="news-filter" data-filter="high">🔥 Высокие</button>
+                    <button class="news-filter" data-filter="medium">⚠️ Средние</button>
+                </div>
+                
+                <div class="news-list" id="newsList">
+                    <!-- Новости будут добавляться через JavaScript -->
+                </div>
+                
+                <div class="news-count" id="newsCount">Загрузка новостей...</div>
+            </div>
+
         </div>
 
-        <div class="controls">
-            <button class="timeframe-btn active" data-timeframe="15">15m</button>
-            <button class="timeframe-btn" data-timeframe="60">1H</button>
-            <button class="timeframe-btn" data-timeframe="240">4H</button>
-            <button class="timeframe-btn" data-timeframe="D">1D</button>
-            <button class="timeframe-btn" data-timeframe="W">1W</button>
-        </div>
-        
-        <main>
-            <div class="chart-container">
-                <h2 id="chart-title">График BTC/USDT</h2>
-                <div id="tradingview_chart"></div>
+        <section class="chart-section">
+            <div class="controls">
+                <button class="symbol-btn active" data-symbol="BINANCE:BTCUSDT">BTC/USDT</button>
+                <button class="symbol-btn" data-symbol="BINANCE:ETHUSDT">ETH/USDT</button>
             </div>
-        </main>
+            <div class="controls">
+                <button class="timeframe-btn active" data-timeframe="15">15m</button>
+                <button class="timeframe-btn" data-timeframe="60">1H</button>
+                <button class="timeframe-btn" data-timeframe="240">4H</button>
+                <button class="timeframe-btn" data-timeframe="D">1D</button>
+                <button class="timeframe-btn" data-timeframe="W">1W</button>
+            </div>
+            <main>
+                <div class="chart-container">
+                    <div id="tradingview_chart"></div>
+                </div>
+            </main>
+        </section>
+    </div>
+
+    </div>
+
+    <footer>
+            <div class="contact-info">
+                 <a href="mailto:contact@onlyfunds.com">contact@onlyfunds.com</a>
+                 <a href="https://t.me/onlyfunds">Telegram</a>
+                 <a href="https://x.com/7OnlyFunds">X (Twitter)</a>
+                 <a href="tel:+1234567890">+1 (234) 567-890</a>
+            </div>
+        </footer>
     </div>
 
     <!-- TradingView Script -->
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
+    <script>
+        // Моковые данные новостей
+        const newsData = [
+            { time: "14:30", title: "CPI Data Release", currency: "USD", impact: "high", actual: "3.4%", forecast: "3.2%" },
+            { time: "15:00", title: "FOMC Statement", currency: "USD", impact: "high", actual: "", forecast: "" },
+            { time: "11:45", title: "ECB Press Conference", currency: "EUR", impact: "high", actual: "", forecast: "" },
+            { time: "13:20", title: "Retail Sales m/m", currency: "GBP", impact: "medium", actual: "0.3%", forecast: "0.2%" },
+            { time: "10:15", title: "Unemployment Claims", currency: "USD", impact: "medium", actual: "210K", forecast: "215K" },
+            { time: "09:30", title: "Building Permits", currency: "CAD", impact: "medium", actual: "", forecast: "" },
+            { time: "16:00", title: "Crude Oil Inventories", currency: "OIL", impact: "medium", actual: "", forecast: "" },
+            { time: "12:00", title: "BOJ Outlook Report", currency: "JPY", impact: "low", actual: "", forecast: "" }
+        ];
+
+        let currentFilter = 'all';
+
+        function displayNews() {
+            const newsList = document.getElementById('newsList');
+            const filteredNews = currentFilter === 'all' 
+                ? newsData 
+                : newsData.filter(news => news.impact === currentFilter);
+
+            newsList.innerHTML = '';
+
+            filteredNews.forEach(news => {
+                const newsItem = document.createElement('div');
+                newsItem.className = `news-item ${news.impact}`;
+                newsItem.innerHTML = `
+                    <div class="news-time">
+                        <span>🕒 ${news.time}</span>
+                    </div>
+                    <div class="news-title">${news.title}</div>
+                    <div class="news-meta">
+                        <span class="news-currency">${news.currency}</span>
+                        <span class="news-impact impact-${news.impact}">
+                            ${news.impact === 'high' ? '🔥' : news.impact === 'medium' ? '⚠️' : 'ℹ️'} 
+                            ${news.impact === 'high' ? 'Высокая' : news.impact === 'medium' ? 'Средняя' : 'Низкая'}
+                        </span>
+                    </div>
+                `;
+                newsList.appendChild(newsItem);
+            });
+
+            document.getElementById('newsCount').textContent = `Показано: ${filteredNews.length} из ${newsData.length} событий`;
+        }
+
+        function refreshNews() {
+            // В реальном приложении здесь был бы запрос к API
+            displayNews();
+            document.getElementById('newsCount').textContent = 'Новости обновлены ✅';
+            setTimeout(() => {
+                document.getElementById('newsCount').textContent = `Показано: ${currentFilter === 'all' ? newsData.length : newsData.filter(n => n.impact === currentFilter).length} событий`;
+            }, 2000);
+        }
+
+        // Инициализация фильтров новостей
+        document.querySelectorAll('.news-filter').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.news-filter').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.getAttribute('data-filter');
+                displayNews();
+            });
+        });
+
+        // Инициализация новостей при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            displayNews();
+        });
+    </script>
+
     <script>
         let currentChart = null;
         let currentSymbol = 'BINANCE:BTCUSDT';
@@ -182,13 +728,8 @@
                 document.querySelectorAll('.symbol-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
-                
-                // Добавляем активный класс нажатой кнопке
                 this.classList.add('active');
-                
-                // Обновляем символ и перерисовываем график
                 currentSymbol = this.getAttribute('data-symbol');
-                document.getElementById('chart-title').textContent = `График ${this.textContent}`;
                 initTradingViewChart(currentSymbol, currentTimeframe);
             });
         });
@@ -212,7 +753,11 @@
 
         // Запуск при полной загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
-            initTradingViewChart();
+            const activeSymbolBtn = document.querySelector('.symbol-btn.active');
+            if (activeSymbolBtn) {
+                currentSymbol = activeSymbolBtn.getAttribute('data-symbol') || currentSymbol;
+            }
+            initTradingViewChart(currentSymbol, currentTimeframe);
         });
 
         // Обработка ошибок загрузки TradingView
