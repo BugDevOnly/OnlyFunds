@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой Аналитический Портал</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #30363d;
+        }
+
+        h1 {
+            color: #58a6ff;
+            font-size: 2.5rem;
+        }
+
+        .chart-container {
+            background: #161b22;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #30363d;
+            margin-bottom: 20px;
+        }
+
+        .chart-container h2 {
+            margin-bottom: 15px;
+            color: #58a6ff;
+        }
+
+        #tradingview_chart {
+            height: 600px;
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .symbol-btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .symbol-btn:hover {
+            background: #2ea043;
+        }
+
+        .timeframe-btn {
+            background: #1f6feb;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .timeframe-btn:hover {
+            background: #2c83f3;
+        }
+
+        .active {
+            background: #f78166 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Мой Аналитический Портал</h1>
+        </header>
+        
+        <div class="controls">
+            <button class="symbol-btn active" data-symbol="BINANCE:BTCUSDT">BTC/USDT</button>
+            <button class="symbol-btn" data-symbol="BINANCE:ETHUSDT">ETH/USDT</button>
+            <button class="symbol-btn" data-symbol="BINANCE:ADAUSDT">ADA/USDT</button>
+            <button class="symbol-btn" data-symbol="BINANCE:DOTUSDT">DOT/USDT</button>
+        </div>
+
+        <div class="controls">
+            <button class="timeframe-btn active" data-timeframe="15">15m</button>
+            <button class="timeframe-btn" data-timeframe="60">1H</button>
+            <button class="timeframe-btn" data-timeframe="240">4H</button>
+            <button class="timeframe-btn" data-timeframe="D">1D</button>
+            <button class="timeframe-btn" data-timeframe="W">1W</button>
+        </div>
+        
+        <main>
+            <div class="chart-container">
+                <h2 id="chart-title">График BTC/USDT</h2>
+                <div id="tradingview_chart"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- TradingView Script -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        let currentChart = null;
+        let currentSymbol = 'BINANCE:BTCUSDT';
+        let currentTimeframe = 'D';
+
+        // Инициализация TradingView графика
+        function initTradingViewChart(symbol = 'BINANCE:BTCUSDT', interval = 'D') {
+            // Удаляем предыдущий график если есть
+            const container = document.getElementById('tradingview_chart');
+            if (currentChart) {
+                container.innerHTML = '';
+            }
+
+            currentChart = new TradingView.widget({
+                "container_id": "tradingview_chart",
+                "width": "100%",
+                "height": "600",
+                "symbol": symbol,
+                "interval": interval,
+                "timezone": "Europe/Moscow",
+                "theme": "dark",
+                "style": "1",
+                "locale": "ru",
+                "toolbar_bg": "#0d1117",
+                "enable_publishing": false,
+                "hide_top_toolbar": false,
+                "hide_legend": false,
+                "save_image": true,
+                "studies": [
+                    "MASimple@tv-basicstudies",
+                    "RSI@tv-basicstudies",
+                    "Volume@tv-basicstudies"
+                ],
+                "drawing_tools": [
+                    "LineToolBrush", "LineToolCursor", "LineToolEllipse", "LineToolFibonacciArc",
+                    "LineToolFibonacciCircles", "LineToolFibonacciRetracement", "LineToolHorizontalLine",
+                    "LineToolHorizontalRay", "LineToolLine", "LineToolVerticalLine", "LineToolArrow",
+                    "LineToolText", "LineToolRectangle", "LineToolTrendLine", "LineToolParallelChannel"
+                ],
+                "details": true,
+                "hotlist": true,
+                "calendar": true,
+                "studies_overrides": {
+                    "moving average.ma.color": "#58a6ff",
+                    "rsi.linecolor": "#f78166"
+                }
+            });
+        }
+
+        // Обработчики для кнопок символов
+        document.querySelectorAll('.symbol-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // Убираем активный класс у всех кнопок
+                document.querySelectorAll('.symbol-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Добавляем активный класс нажатой кнопке
+                this.classList.add('active');
+                
+                // Обновляем символ и перерисовываем график
+                currentSymbol = this.getAttribute('data-symbol');
+                document.getElementById('chart-title').textContent = `График ${this.textContent}`;
+                initTradingViewChart(currentSymbol, currentTimeframe);
+            });
+        });
+
+        // Обработчики для кнопок таймфреймов
+        document.querySelectorAll('.timeframe-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // Убираем активный класс у всех кнопок
+                document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Добавляем активный класс нажатой кнопке
+                this.classList.add('active');
+                
+                // Обновляем таймфрейм и перерисовываем график
+                currentTimeframe = this.getAttribute('data-timeframe');
+                initTradingViewChart(currentSymbol, currentTimeframe);
+            });
+        });
+
+        // Запуск при полной загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            initTradingViewChart();
+        });
+
+        // Обработка ошибок загрузки TradingView
+        window.addEventListener('error', function(e) {
+            if (e.message.includes('TradingView')) {
+                console.error('Ошибка загрузки TradingView:', e);
+                document.getElementById('tradingview_chart').innerHTML = 
+                    '<div style="color: #f78166; text-align: center; padding: 50px;">' +
+                    'Ошибка загрузки графика. Проверьте подключение к интернету.</div>';
+            }
+        });
+    </script>
+</body>
+</html>
