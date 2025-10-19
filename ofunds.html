@@ -224,6 +224,14 @@
             color: #58a6ff;
         }
 
+        /* === ДОБАВЛЕНО: Стиль для отсутствия новостей === */
+        .no-news {
+            color: #8b949e;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+        }
+
         @media (max-width: 1200px) {
             .main-content-wrapper {
                 grid-template-columns: 1fr;
@@ -546,6 +554,7 @@
 
             </section>
 
+            <!-- === ДОБАВЛЕНО: Автоматически обновляемый блок новостей === -->
             <div class="news-sidebar">
                 <div class="news-header">
                     <h3>📅 Экономические Новости</h3>
@@ -553,17 +562,19 @@
                 </div>
                 
                 <div class="news-controls">
-                    <button class="news-filter active" data-filter="all">Все</button>
+                    <button class="news-filter active" data-filter="today">📅 Сегодня</button>
                     <button class="news-filter" data-filter="high">🔥 Высокие</button>
                     <button class="news-filter" data-filter="medium">⚠️ Средние</button>
+                    <button class="news-filter" data-filter="all">Все</button>
                 </div>
                 
                 <div class="news-list" id="newsList">
-                    <!-- Новости будут добавляться через JavaScript -->
+                    <!-- Новости будут добавляться автоматически -->
                 </div>
                 
                 <div class="news-count" id="newsCount">Загрузка новостей...</div>
             </div>
+            <!-- === КОНЕЦ ДОБАВЛЕННОГО БЛОКА === -->
 
         </div>
 
@@ -602,57 +613,157 @@
     <!-- TradingView Script -->
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
+ 
     <script>
-        // Моковые данные новостей
-        const newsData = [
-            { time: "14:30", title: "CPI Data Release", currency: "USD", impact: "high", actual: "3.4%", forecast: "3.2%" },
-            { time: "15:00", title: "FOMC Statement", currency: "USD", impact: "high", actual: "", forecast: "" },
-            { time: "11:45", title: "ECB Press Conference", currency: "EUR", impact: "high", actual: "", forecast: "" },
-            { time: "13:20", title: "Retail Sales m/m", currency: "GBP", impact: "medium", actual: "0.3%", forecast: "0.2%" },
-            { time: "10:15", title: "Unemployment Claims", currency: "USD", impact: "medium", actual: "210K", forecast: "215K" },
-            { time: "09:30", title: "Building Permits", currency: "CAD", impact: "medium", actual: "", forecast: "" },
-            { time: "16:00", title: "Crude Oil Inventories", currency: "OIL", impact: "medium", actual: "", forecast: "" },
-            { time: "12:00", title: "BOJ Outlook Report", currency: "JPY", impact: "low", actual: "", forecast: "" }
+        // Расширенный пул новостей на 2 недели вперед
+        const newsPool = [
+            // Сегодня
+            { date: getToday(), time: "14:30", title: "CPI Data Release", currency: "USD", impact: "high", actual: "3.4%", forecast: "3.2%" },
+            { date: getToday(), time: "15:00", title: "FOMC Statement", currency: "USD", impact: "high", actual: "", forecast: "" },
+            { date: getToday(), time: "11:45", title: "ECB Press Conference", currency: "EUR", impact: "high", actual: "", forecast: "" },
+            { date: getToday(), time: "13:20", title: "Retail Sales m/m", currency: "GBP", impact: "medium", actual: "0.3%", forecast: "0.2%" },
+            { date: getToday(), time: "16:00", title: "Crude Oil Inventories", currency: "OIL", impact: "medium", actual: "", forecast: "" },
+            
+            // Завтра
+            { date: getTomorrow(), time: "09:30", title: "Unemployment Claims", currency: "USD", impact: "medium", actual: "", forecast: "215K" },
+            { date: getTomorrow(), time: "10:15", title: "Building Permits", currency: "CAD", impact: "medium", actual: "", forecast: "" },
+            { date: getTomorrow(), time: "12:00", title: "BOJ Outlook Report", currency: "JPY", impact: "low", actual: "", forecast: "" },
+            { date: getTomorrow(), time: "14:00", title: "Existing Home Sales", currency: "USD", impact: "medium", actual: "", forecast: "" },
+            
+            // Послезавтра
+            { date: getDayAfterTomorrow(), time: "08:00", title: "GDP Growth Rate QoQ", currency: "GBP", impact: "high", actual: "", forecast: "0.4%" },
+            { date: getDayAfterTomorrow(), time: "10:30", title: "Manufacturing PMI", currency: "EUR", impact: "medium", actual: "", forecast: "47.5" },
+            { date: getDayAfterTomorrow(), time: "13:45", title: "Core PCE Price Index", currency: "USD", impact: "high", actual: "", forecast: "0.3%" },
+            
+            // На следующей неделе
+            { date: getNextWeek(), time: "15:30", title: "Fed Interest Rate Decision", currency: "USD", impact: "high", actual: "", forecast: "5.50%" },
+            { date: getNextWeek(), time: "11:00", title: "ECB Interest Rate Decision", currency: "EUR", impact: "high", actual: "", forecast: "4.50%" },
+            { date: getNextWeek(), time: "09:45", title: "Services PMI", currency: "GBP", impact: "medium", actual: "", forecast: "53.2" },
+            { date: getNextWeek(), time: "14:15", title: "Non-Farm Payrolls", currency: "USD", impact: "high", actual: "", forecast: "180K" }
         ];
 
-        let currentFilter = 'all';
+        let currentFilter = 'today';
+
+        // Функции для работы с датами
+        function getToday() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function getTomorrow() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            return tomorrow.toISOString().split('T')[0];
+        }
+
+        function getDayAfterTomorrow() {
+            const dayAfter = new Date();
+            dayAfter.setDate(dayAfter.getDate() + 2);
+            return dayAfter.toISOString().split('T')[0];
+        }
+
+        function getNextWeek() {
+            const nextWeek = new Date();
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            return nextWeek.toISOString().split('T')[0];
+        }
+
+        function getCurrentNews() {
+            const today = getToday();
+            const now = new Date();
+            
+            return newsPool.filter(news => {
+                const newsDate = news.date;
+                
+                // Если дата в будущем - показываем
+                if (newsDate > today) return true;
+                
+                // Если сегодня - проверяем время
+                if (newsDate === today) {
+                    const [hours, minutes] = news.time.split(':');
+                    const newsDateTime = new Date();
+                    newsDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                    
+                    // Показываем если время события еще не наступило или прошло не более 2 часов
+                    return now <= new Date(newsDateTime.getTime() + 2 * 60 * 60 * 1000);
+                }
+                
+                return false;
+            }).sort((a, b) => {
+                // Сортируем по дате и времени
+                if (a.date !== b.date) return a.date.localeCompare(b.date);
+                return a.time.localeCompare(b.time);
+            });
+        }
 
         function displayNews() {
             const newsList = document.getElementById('newsList');
-            const filteredNews = currentFilter === 'all' 
-                ? newsData 
-                : newsData.filter(news => news.impact === currentFilter);
-
+            const allCurrentNews = getCurrentNews();
+            
+            let filteredNews = allCurrentNews;
+            
+            if (currentFilter === 'today') {
+                filteredNews = allCurrentNews.filter(news => news.date === getToday());
+            } else if (currentFilter === 'high') {
+                filteredNews = allCurrentNews.filter(news => news.impact === 'high');
+            } else if (currentFilter === 'medium') {
+                filteredNews = allCurrentNews.filter(news => news.impact === 'medium');
+            }
+            
+            // Ограничиваем показ 8 событиями
+            const displayNews = filteredNews.slice(0, 8);
+            
             newsList.innerHTML = '';
 
-            filteredNews.forEach(news => {
-                const newsItem = document.createElement('div');
-                newsItem.className = `news-item ${news.impact}`;
-                newsItem.innerHTML = `
-                    <div class="news-time">
-                        <span>🕒 ${news.time}</span>
-                    </div>
-                    <div class="news-title">${news.title}</div>
-                    <div class="news-meta">
-                        <span class="news-currency">${news.currency}</span>
-                        <span class="news-impact impact-${news.impact}">
-                            ${news.impact === 'high' ? '🔥' : news.impact === 'medium' ? '⚠️' : 'ℹ️'} 
-                            ${news.impact === 'high' ? 'Высокая' : news.impact === 'medium' ? 'Средняя' : 'Низкая'}
-                        </span>
-                    </div>
-                `;
-                newsList.appendChild(newsItem);
-            });
+            if (displayNews.length === 0) {
+                newsList.innerHTML = '<div class="no-news">Нет событий для отображения</div>';
+            } else {
+                displayNews.forEach(news => {
+                    const newsItem = document.createElement('div');
+                    newsItem.className = `news-item ${news.impact}`;
+                    
+                    const dateLabel = news.date === getToday() ? 'Сегодня' : 
+                                    news.date === getTomorrow() ? 'Завтра' :
+                                    news.date === getDayAfterTomorrow() ? 'Послезавтра' :
+                                    formatDate(news.date);
+                    
+                    newsItem.innerHTML = `
+                        <div class="news-time">
+                            <span>📅 ${dateLabel} 🕒 ${news.time}</span>
+                        </div>
+                        <div class="news-title">${news.title}</div>
+                        <div class="news-meta">
+                            <span class="news-currency">${news.currency}</span>
+                            <span class="news-impact impact-${news.impact}">
+                                ${news.impact === 'high' ? '🔥' : news.impact === 'medium' ? '⚠️' : 'ℹ️'} 
+                                ${news.impact === 'high' ? 'Высокая' : news.impact === 'medium' ? 'Средняя' : 'Низкая'}
+                            </span>
+                        </div>
+                    `;
+                    newsList.appendChild(newsItem);
+                });
+            }
 
-            document.getElementById('newsCount').textContent = `Показано: ${filteredNews.length} из ${newsData.length} событий`;
+            const totalEvents = allCurrentNews.length;
+            const shownEvents = displayNews.length;
+            document.getElementById('newsCount').textContent = 
+                `Показано: ${shownEvents} из ${totalEvents} событий`;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
         }
 
         function refreshNews() {
-            // В реальном приложении здесь был бы запрос к API
             displayNews();
             document.getElementById('newsCount').textContent = 'Новости обновлены ✅';
             setTimeout(() => {
-                document.getElementById('newsCount').textContent = `Показано: ${currentFilter === 'all' ? newsData.length : newsData.filter(n => n.impact === currentFilter).length} событий`;
+                const allCurrentNews = getCurrentNews();
+                const filteredNews = currentFilter === 'today' ? 
+                    allCurrentNews.filter(news => news.date === getToday()) : 
+                    allCurrentNews.filter(news => currentFilter === 'all' || news.impact === currentFilter);
+                document.getElementById('newsCount').textContent = 
+                    `Показано: ${Math.min(filteredNews.length, 8)} из ${allCurrentNews.length} событий`;
             }, 2000);
         }
 
@@ -665,6 +776,11 @@
                 displayNews();
             });
         });
+
+        // Автоматическое обновление каждые 30 минут
+        setInterval(() => {
+            displayNews();
+        }, 30 * 60 * 1000);
 
         // Инициализация новостей при загрузке
         document.addEventListener('DOMContentLoaded', function() {
